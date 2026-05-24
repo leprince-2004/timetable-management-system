@@ -1,179 +1,152 @@
 @extends('layout')
-
 @section('page-title', 'Time Slots')
 
 @section('content')
 
-<!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header">
     <div>
-        <h4 class="fw-bold mb-1"><i class="fas fa-clock text-info me-2"></i>Time Slots</h4>
-        <p class="text-muted mb-0">Manage all available time slots</p>
+        <h4 class="page-title"><i class="fas fa-clock me-2" style="color:#4cc9f0"></i>Time Slots</h4>
+        <p class="page-subtitle">Manage all available time slots</p>
     </div>
-    <button class="btn btn-info px-4 text-white" onclick="openAddModal()">
+    <button class="btn btn-info" onclick="openAddModal()">
         <i class="fas fa-plus me-2"></i>Add Time Slot
     </button>
 </div>
 
-<!-- Stats -->
+{{-- Stats --}}
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card border-0 bg-info bg-gradient text-white">
-            <div class="card-body d-flex align-items-center gap-3">
-                <i class="fas fa-clock fa-2x opacity-75"></i>
-                <div>
-                    <div class="fs-4 fw-bold" id="total-count">0</div>
-                    <div class="small opacity-75">Total Time Slots</div>
-                </div>
-            </div>
+        <div class="card stat-card" style="background: linear-gradient(135deg, #4cc9f0, #2196f3);">
+            <div class="stat-number" id="total-count">—</div>
+            <div class="stat-label">Total Time Slots</div>
+            <i class="fas fa-clock stat-icon"></i>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 bg-success bg-gradient text-white">
-            <div class="card-body d-flex align-items-center gap-3">
-                <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                <div>
-                    <div class="fs-4 fw-bold" id="active-count">0</div>
-                    <div class="small opacity-75">Active Slots</div>
-                </div>
-            </div>
+        <div class="card stat-card" style="background: linear-gradient(135deg, #2dc653, #1a7a35);">
+            <div class="stat-number" id="active-count">—</div>
+            <div class="stat-label">Active Slots</div>
+            <i class="fas fa-check-circle stat-icon"></i>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 bg-secondary bg-gradient text-white">
-            <div class="card-body d-flex align-items-center gap-3">
-                <i class="fas fa-times-circle fa-2x opacity-75"></i>
-                <div>
-                    <div class="fs-4 fw-bold" id="inactive-count">0</div>
-                    <div class="small opacity-75">Inactive Slots</div>
-                </div>
-            </div>
+        <div class="card stat-card" style="background: linear-gradient(135deg, #718096, #4a5568);">
+            <div class="stat-number" id="inactive-count">—</div>
+            <div class="stat-label">Inactive Slots</div>
+            <i class="fas fa-times-circle stat-icon"></i>
         </div>
     </div>
 </div>
 
-<!-- Search & Filter -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-5">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="fas fa-search text-muted"></i>
-                    </span>
-                    <input type="text" id="searchInput" class="form-control border-start-0"
-                        placeholder="Search time slots..." oninput="filterSlots()">
-                </div>
+{{-- Filters --}}
+<div class="search-card">
+    <div class="row g-3">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchInput" class="form-control"
+                    placeholder="Search time slots…" oninput="filterSlots()">
             </div>
-            <div class="col-md-4">
-                <select id="filterDay" class="form-select" onchange="filterSlots()">
-                    <option value="">All Days</option>
-                    <option>Monday</option>
-                    <option>Tuesday</option>
-                    <option>Wednesday</option>
-                    <option>Thursday</option>
-                    <option>Friday</option>
-                    <option>Saturday</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select id="filterStatus" class="form-select" onchange="filterSlots()">
-                    <option value="">All Status</option>
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
-                </select>
-            </div>
+        </div>
+        <div class="col-md-4">
+            <select id="filterDay" class="form-select" onchange="filterSlots()">
+                <option value="">All Days</option>
+                <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+                <option>Thursday</option><option>Friday</option><option>Saturday</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="filterStatus" class="form-select" onchange="filterSlots()">
+                <option value="">All Status</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
         </div>
     </div>
 </div>
 
-<!-- Time Slots — Weekly View -->
-<div id="weekly-view">
-    <!-- Generated by JS -->
-</div>
+{{-- Weekly view --}}
+<div id="weekly-view"></div>
 
-<!-- Empty State -->
 <div id="empty-state" class="text-center py-5 d-none">
-    <i class="fas fa-clock fa-4x text-muted mb-3"></i>
-    <h5 class="text-muted">No time slots yet</h5>
-    <p class="text-muted">Click "Add Time Slot" to get started</p>
+    <div class="empty-state-icon"><i class="fas fa-clock"></i></div>
+    <h6 class="text-muted mt-2">No time slots yet</h6>
+    <p class="text-muted small">Click "Add Time Slot" to get started</p>
 </div>
 
-<!-- Loading -->
 <div id="loading" class="text-center py-5">
-    <div class="spinner-border text-info"></div>
-    <p class="mt-2 text-muted">Loading time slots...</p>
+    <div class="spinner-border" style="color:#4cc9f0"></div>
+    <p class="mt-2 text-muted small">Loading time slots…</p>
 </div>
 
-<!-- ADD/EDIT MODAL -->
+{{-- ADD / EDIT MODAL --}}
 <div class="modal fade" id="slotModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="modal-title">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg,#4cc9f0,#2196f3)">
+                <h5 class="modal-title text-white" id="modal-title">
                     <i class="fas fa-plus me-2"></i>Add Time Slot
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <div id="form-error" class="alert alert-danger d-none"></div>
+            <div class="modal-body">
+                <div id="form-error" class="alert alert-danger d-none py-2" style="border-radius:10px;font-size:0.82rem"></div>
                 <input type="hidden" id="slot-id">
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label fw-bold">Day <span class="text-danger">*</span></label>
+                        <label class="form-label">Day <span class="text-danger">*</span></label>
                         <select id="slot-day" class="form-select">
-                            <option value="">-- Select Day --</option>
-                            <option>Monday</option>
-                            <option>Tuesday</option>
-                            <option>Wednesday</option>
-                            <option>Thursday</option>
-                            <option>Friday</option>
-                            <option>Saturday</option>
+                            <option value="">— Select Day —</option>
+                            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+                            <option>Thursday</option><option>Friday</option><option>Saturday</option>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Start Time <span class="text-danger">*</span></label>
+                        <label class="form-label">Start Time <span class="text-danger">*</span></label>
                         <input type="time" id="slot-start" class="form-control">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">End Time <span class="text-danger">*</span></label>
+                        <label class="form-label">End Time <span class="text-danger">*</span></label>
                         <input type="time" id="slot-end" class="form-control">
                     </div>
                     <div class="col-12">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="slot-active" checked>
-                            <label class="form-check-label fw-bold" for="slot-active">Active</label>
+                            <label class="form-check-label form-label mb-0" for="slot-active">Active</label>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-info text-white px-4" onclick="saveSlot()">
-                    <i class="fas fa-save me-2"></i>Save
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-info btn-sm" onclick="saveSlot()">
+                    <i class="fas fa-save me-1"></i>Save
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- DELETE MODAL -->
+{{-- DELETE MODAL --}}
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title"><i class="fas fa-trash me-2"></i>Delete Time Slot</h5>
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg,#ef233c,#b01020)">
+                <h5 class="modal-title text-white"><i class="fas fa-trash me-2"></i>Delete Time Slot</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 text-center">
-                <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-                <p class="fs-5">Are you sure you want to delete this time slot?</p>
-                <p class="text-muted small" id="delete-name"></p>
+            <div class="modal-body text-center py-4">
+                <div class="empty-state-icon mb-3" style="background:#fff0f2;color:#ef233c">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <p class="mb-1">Are you sure you want to delete this time slot?</p>
+                <p class="text-muted small fw-bold" id="delete-name"></p>
+                <p class="text-muted small">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-danger px-4" onclick="confirmDelete()">
-                    <i class="fas fa-trash me-2"></i>Delete
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete()">
+                    <i class="fas fa-trash me-1"></i>Delete
                 </button>
             </div>
         </div>
@@ -184,101 +157,96 @@
 
 @section('scripts')
 <script>
-let slots = [];
-let filtered = [];
+let slots = [], filtered = [];
 let deleteId = null;
-const slotModal = new bootstrap.Modal(document.getElementById('slotModal'));
+const slotModal   = new bootstrap.Modal(document.getElementById('slotModal'));
 const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
 
 const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const dayColors = {
-    Monday: 'primary', Tuesday: 'success', Wednesday: 'warning',
-    Thursday: 'danger', Friday: 'info', Saturday: 'secondary'
+    Monday:'#4361ee', Tuesday:'#2dc653', Wednesday:'#f8961e',
+    Thursday:'#ef233c', Friday:'#4cc9f0', Saturday:'#7209b7'
 };
 
 async function loadSlots() {
     try {
         const res = await axios.get('/api/time-slots');
-        slots = res.data;
+        slots    = res.data;
         filtered = slots;
         renderSlots(slots);
         updateStats(slots);
         document.getElementById('loading').classList.add('d-none');
     } catch(e) {
-        document.getElementById('loading').innerHTML =
-            '<p class="text-danger">Error loading time slots.</p>';
+        document.getElementById('loading').innerHTML = '<p class="text-danger">Error loading time slots.</p>';
     }
 }
 
 function updateStats(data) {
-    document.getElementById('total-count').textContent = data.length;
-    document.getElementById('active-count').textContent =
-        data.filter(s => s.is_active).length;
-    document.getElementById('inactive-count').textContent =
-        data.filter(s => !s.is_active).length;
+    document.getElementById('total-count').textContent    = data.length;
+    document.getElementById('active-count').textContent   = data.filter(s => s.is_active).length;
+    document.getElementById('inactive-count').textContent = data.filter(s => !s.is_active).length;
 }
 
 function renderSlots(data) {
-    const view = document.getElementById('weekly-view');
+    const view  = document.getElementById('weekly-view');
     const empty = document.getElementById('empty-state');
-
-    if (data.length === 0) {
-        view.innerHTML = '';
-        empty.classList.remove('d-none');
-        return;
-    }
-
+    if (data.length === 0) { view.innerHTML = ''; empty.classList.remove('d-none'); return; }
     empty.classList.add('d-none');
-    let html = '';
 
+    let html = '';
     days.forEach(day => {
         const daySlots = data.filter(s => s.day === day);
-        if (daySlots.length === 0) return;
+        if (!daySlots.length) return;
+        const color = dayColors[day];
 
         html += `
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-header bg-${dayColors[day]} text-white py-3">
-                <h6 class="mb-0 fw-bold">
-                    <i class="fas fa-calendar-day me-2"></i>${day}
-                    <span class="badge bg-white text-${dayColors[day]} ms-2">
+        <div class="card border-0 mb-3" style="border-radius:16px;overflow:hidden">
+            <div class="d-flex align-items-center justify-content-between px-4 py-3"
+                 style="background:${color}15;border-bottom:2px solid ${color}30">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:10px;height:10px;border-radius:50%;background:${color}"></div>
+                    <h6 class="mb-0 fw-bold" style="color:${color}">${day}</h6>
+                    <span class="badge" style="background:${color}20;color:${color};font-size:0.7rem">
                         ${daySlots.length} slot${daySlots.length > 1 ? 's' : ''}
                     </span>
-                </h6>
+                </div>
             </div>
             <div class="card-body p-3">
                 <div class="row g-2">
                     ${daySlots.map(s => `
-                        <div class="col-md-3 col-sm-4 col-6">
-                            <div class="border rounded p-2 text-center hover-card position-relative
-                                ${s.is_active ? 'border-' + dayColors[day] : 'border-secondary opacity-50'}">
-                                <div class="fw-bold text-${dayColors[day]}">
-                                    ${s.start_time.substring(0,5)}
-                                </div>
-                                <div class="small text-muted">to</div>
-                                <div class="fw-bold text-${dayColors[day]}">
-                                    ${s.end_time.substring(0,5)}
-                                </div>
-                                <div class="mt-1">
-                                    ${s.is_active ?
-                                        '<span class="badge bg-success" style="font-size:0.6rem">Active</span>' :
-                                        '<span class="badge bg-secondary" style="font-size:0.6rem">Inactive</span>'
-                                    }
-                                </div>
-                                <div class="mt-2 d-flex gap-1 justify-content-center">
-                                    <button class="btn btn-xs btn-outline-primary"
-                                        style="padding:2px 6px; font-size:0.7rem"
-                                        onclick="openEditModal(${s.id})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-xs btn-outline-danger"
-                                        style="padding:2px 6px; font-size:0.7rem"
-                                        onclick="openDeleteModal(${s.id}, '${day} ${s.start_time.substring(0,5)}-${s.end_time.substring(0,5)}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                    <div class="col-md-2 col-sm-3 col-4">
+                        <div class="text-center p-3 rounded-3 hover-card position-relative"
+                             style="background:${s.is_active ? color+'12' : '#f8faff'};
+                                    border:1.5px solid ${s.is_active ? color+'40' : '#e2e8f0'};
+                                    ${s.is_active ? '' : 'opacity:0.6'}">
+                            <div class="fw-bold mb-0" style="color:${color};font-size:0.95rem">
+                                ${s.start_time.substring(0,5)}
+                            </div>
+                            <div class="text-muted" style="font-size:0.65rem">to</div>
+                            <div class="fw-bold" style="color:${color};font-size:0.95rem">
+                                ${s.end_time.substring(0,5)}
+                            </div>
+                            <div class="mt-1">
+                                <span class="badge" style="font-size:0.58rem;
+                                    background:${s.is_active ? '#e8faf0' : '#f0f2f8'};
+                                    color:${s.is_active ? '#1a7a35' : '#718096'}">
+                                    ${s.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                            <div class="mt-2 d-flex gap-1 justify-content-center">
+                                <button class="btn btn-outline-primary"
+                                    style="padding:2px 8px;font-size:0.65rem;border-radius:6px"
+                                    onclick="openEditModal(${s.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger"
+                                    style="padding:2px 8px;font-size:0.65rem;border-radius:6px"
+                                    onclick="openDeleteModal(${s.id}, '${day} ${s.start_time.substring(0,5)}-${s.end_time.substring(0,5)}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
-                    `).join('')}
+                    </div>`).join('')}
                 </div>
             </div>
         </div>`;
@@ -288,30 +256,21 @@ function renderSlots(data) {
 }
 
 function filterSlots() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const day = document.getElementById('filterDay').value;
+    const q      = document.getElementById('searchInput').value.toLowerCase();
+    const day    = document.getElementById('filterDay').value;
     const status = document.getElementById('filterStatus').value;
-
-    filtered = slots.filter(s => {
-        const matchQ = s.day.toLowerCase().includes(q) ||
-                       s.start_time.includes(q) ||
-                       s.end_time.includes(q);
-        const matchDay = !day || s.day === day;
-        const matchStatus = status === '' || s.is_active == status;
-        return matchQ && matchDay && matchStatus;
-    });
-
+    filtered = slots.filter(s =>
+        (s.day.toLowerCase().includes(q) || s.start_time.includes(q) || s.end_time.includes(q)) &&
+        (!day || s.day === day) &&
+        (status === '' || s.is_active == status)
+    );
     renderSlots(filtered);
     updateStats(filtered);
 }
 
 function openAddModal() {
-    document.getElementById('modal-title').innerHTML =
-        '<i class="fas fa-plus me-2"></i>Add Time Slot';
-    document.getElementById('slot-id').value = '';
-    document.getElementById('slot-day').value = '';
-    document.getElementById('slot-start').value = '';
-    document.getElementById('slot-end').value = '';
+    document.getElementById('modal-title').innerHTML = '<i class="fas fa-plus me-2"></i>Add Time Slot';
+    ['slot-id','slot-day','slot-start','slot-end'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('slot-active').checked = true;
     document.getElementById('form-error').classList.add('d-none');
     slotModal.show();
@@ -319,77 +278,48 @@ function openAddModal() {
 
 function openEditModal(id) {
     const s = slots.find(x => x.id === id);
-    document.getElementById('modal-title').innerHTML =
-        '<i class="fas fa-edit me-2"></i>Edit Time Slot';
-    document.getElementById('slot-id').value = s.id;
-    document.getElementById('slot-day').value = s.day;
+    document.getElementById('modal-title').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Time Slot';
+    document.getElementById('slot-id').value    = s.id;
+    document.getElementById('slot-day').value   = s.day;
     document.getElementById('slot-start').value = s.start_time.substring(0,5);
-    document.getElementById('slot-end').value = s.end_time.substring(0,5);
+    document.getElementById('slot-end').value   = s.end_time.substring(0,5);
     document.getElementById('slot-active').checked = s.is_active == 1;
     document.getElementById('form-error').classList.add('d-none');
     slotModal.show();
 }
 
 async function saveSlot() {
-    const id = document.getElementById('slot-id').value;
+    const id   = document.getElementById('slot-id').value;
     const data = {
-        day: document.getElementById('slot-day').value,
+        day:        document.getElementById('slot-day').value,
         start_time: document.getElementById('slot-start').value,
-        end_time: document.getElementById('slot-end').value,
-        is_active: document.getElementById('slot-active').checked ? 1 : 0,
+        end_time:   document.getElementById('slot-end').value,
+        is_active:  document.getElementById('slot-active').checked ? 1 : 0,
     };
-    const errorDiv = document.getElementById('form-error');
-
+    const err = document.getElementById('form-error');
     if (!data.day || !data.start_time || !data.end_time) {
-        errorDiv.textContent = 'Day, start time and end time are required.';
-        errorDiv.classList.remove('d-none');
-        return;
+        err.textContent = 'Day, start time and end time are required.'; err.classList.remove('d-none'); return;
     }
-
     if (data.start_time >= data.end_time) {
-        errorDiv.textContent = 'End time must be after start time.';
-        errorDiv.classList.remove('d-none');
-        return;
+        err.textContent = 'End time must be after start time.'; err.classList.remove('d-none'); return;
     }
-
     try {
-        if (id) {
-            await axios.put(`/api/time-slots/${id}`, data);
-        } else {
-            await axios.post('/api/time-slots', data);
-        }
-        slotModal.hide();
-        loadSlots();
+        id ? await axios.put(`/api/time-slots/${id}`, data)
+           : await axios.post('/api/time-slots', data);
+        slotModal.hide(); loadSlots();
     } catch(e) {
-        errorDiv.textContent = e.response?.data?.message || 'Error saving time slot.';
-        errorDiv.classList.remove('d-none');
+        err.textContent = e.response?.data?.message || 'Error saving time slot.';
+        err.classList.remove('d-none');
     }
 }
 
-function openDeleteModal(id, label) {
-    deleteId = id;
-    document.getElementById('delete-name').textContent = label;
-    deleteModal.show();
-}
+function openDeleteModal(id, label) { deleteId = id; document.getElementById('delete-name').textContent = label; deleteModal.show(); }
 
 async function confirmDelete() {
-    try {
-        await axios.delete(`/api/time-slots/${deleteId}`);
-        deleteModal.hide();
-        loadSlots();
-    } catch(e) {
-        alert('Error deleting time slot.');
-    }
+    try { await axios.delete(`/api/time-slots/${deleteId}`); deleteModal.hide(); loadSlots(); }
+    catch(e) { alert('Error deleting time slot.'); }
 }
 
 loadSlots();
 </script>
-
-<style>
-.hover-card { transition: transform 0.2s, box-shadow 0.2s; }
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-}
-</style>
 @endsection
