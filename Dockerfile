@@ -18,7 +18,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Install Node.js dependencies and build frontend assets
-RUN npm ci && npm run build
+RUN npm install && npm run build
 
 # Set storage and cache permissions
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache \
